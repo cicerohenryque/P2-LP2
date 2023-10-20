@@ -1,0 +1,104 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+class FormaDePagamento {
+    private int id;
+    private String tipoDePagamento;
+    private double percentualDesconto;
+
+    public FormaDePagamento(int id, String tipoDePagamento, double percentualDesconto) {
+        this.id = id;
+        this.tipoDePagamento = tipoDePagamento;
+        this.percentualDesconto = percentualDesconto;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getTipoDePagamento() {
+        return tipoDePagamento;
+    }
+
+    public double getPercentualDesconto() {
+        return percentualDesconto;
+    }
+
+    public void setPercentualDesconto(double percentualDesconto) {
+        this.percentualDesconto = percentualDesconto;
+    }
+
+    public String toString() {
+        return "[" + id + "] Forma de pagamento: " + tipoDePagamento + " (" + percentualDesconto + "% de desconto em pagamentos)";
+    }
+}
+
+public class SistemaPagamentos {
+    private Map<Integer, FormaDePagamento> formasPagamento;
+    private int nextId;
+
+    public SistemaPagamentos() {
+        formasPagamento = new HashMap<>();
+        nextId = 1;
+    }
+
+    public String disponibilizarFormaDePagamento(String idAutenticacao, String tipoDePagamento, double percentualDesconto) {
+        if (!idAutenticacao.equals("ADM")) {
+            return "Apenas o Administrador pode disponibilizar formas de pagamento.";
+        }
+
+        int id = nextId++;
+        FormaDePagamento formaPagamento = new FormaDePagamento(id, tipoDePagamento, percentualDesconto);
+        formasPagamento.put(id, formaPagamento);
+        return "Forma de pagamento disponibilizada com sucesso. ID: " + id;
+    }
+
+    public String alterarFormaDePagamento(String idAutenticacao, int idFormaPagamento, String tipoDePagamento, double percentualDesconto) {
+        if (!idAutenticacao.equals("ADM")) {
+            return "Apenas o Administrador pode alterar formas de pagamento.";
+        }
+
+        FormaDePagamento formaPagamento = formasPagamento.get(idFormaPagamento);
+        if (formaPagamento == null) {
+            return "Forma de pagamento não encontrada.";
+        }
+
+        formaPagamento.setPercentualDesconto(percentualDesconto);
+        return "Forma de pagamento atualizada com sucesso.";
+    }
+
+    public String exibirFormaPagamento(int idFormaPagamento) {
+        FormaDePagamento formaPagamento = formasPagamento.get(idFormaPagamento);
+        if (formaPagamento == null) {
+            return "Forma de pagamento não encontrada.";
+        }
+        return formaPagamento.toString();
+    }
+
+    public String[] listarFormasPagamentos() {
+        List<String> listaFormasPagamentos = new ArrayList<>();
+        for (FormaDePagamento formaPagamento : formasPagamento.values()) {
+            listaFormasPagamentos.add(formaPagamento.toString());
+        }
+        return listaFormasPagamentos.toArray(new String[0]);
+    }
+
+    public static void main(String[] args) {
+        SistemaPagamentos sistema = new SistemaPagamentos();
+
+        System.out.println(sistema.disponibilizarFormaDePagamento("ADM", "Cartão", 5));
+        System.out.println(sistema.disponibilizarFormaDePagamento("ADM", "PIX", 3));
+
+        System.out.println(sistema.alterarFormaDePagamento("ADM", 1, "Cartão", 7));
+
+        System.out.println(sistema.exibirFormaPagamento(1));
+        System.out.println(sistema.exibirFormaPagamento(2));
+
+        String[] listaFormasPagamentos = sistema.listarFormasPagamentos();
+        for (String formaPagamento : listaFormasPagamentos) {
+            System.out.println(formaPagamento);
+        }
+    }
+}
